@@ -1,3 +1,5 @@
+# https://cookbook.openai.com/
+
 import os
 import structlog
 from openai import OpenAI
