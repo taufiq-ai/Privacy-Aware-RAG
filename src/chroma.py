@@ -19,3 +19,16 @@ results = collection.query(
 )
 
 print(results)
+
+def create_collection():
+    return 
+
+def retrieve_collection():
+    return 
+
+def update_collection():
+    return 
+
+def delete_collection():
+    return 
+
