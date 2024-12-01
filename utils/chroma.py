@@ -33,7 +33,14 @@ client = chromadb.PersistentClient(
 #     database=DEFAULT_DATABASE,
 # )
 
-
+def get_collection(name:str, ef_model_name:str=None, ef=None):
+    if ef_model_name:
+        ef = create_embedding_function_hf(model_name=ef_model_name)
+    return client.get_collection(
+        name=name, 
+        embedding_function=ef
+    )
+    
 def get_or_create_collection(
     name: str,
     metadata: dict = None,
@@ -64,7 +71,7 @@ def create_embedding_function_hf(
     return huggingface_ef
 
 
-def retrieve_collection(
+def retrieve_knowledge(
     collection,
     query: str | list,
     retrieve_embeddings=False,
@@ -87,8 +94,8 @@ def retrieve_collection(
             else include.append(IncludeEnum.embeddings)
         ),
     )
-    contexts = ["\n".join(doc) for doc in results["documents"]]
-    return results, contexts
+    retrieval = ["\n".join(doc) for doc in results["documents"]]
+    return results, retrieval
 
 
 def update_collection(collection, documents: list, **kwargs):

@@ -1,5 +1,4 @@
 import structlog
-import os
 import pandas as pd
 import settings
 
@@ -17,11 +16,13 @@ from transformers import AutoModel
 from langchain_huggingface import HuggingFaceEmbeddings
 
 ## Vector DB
-from langchain.vectorstores import Chroma
+# from langchain.vectorstores import Chroma ## FIXME
+from langchain_community.vectorstores import Chroma
 
 # Retriever
-from langchain_openai import ChatOpenAI
-from langchain.llms.openai import OpenAI
+from langchain_openai import ChatOpenAI 
+# from langchain.llms.openai import OpenAI # FIXME
+from langchain_community.llms import OpenAI
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain.retrievers import SelfQueryRetriever
 from langchain.retrievers import ContextualCompressionRetriever
@@ -63,6 +64,18 @@ def text_to_chunks(text):
     chunks = splitter.split_text(text)
     chunks_in_docs = [Document(page_content=chunk) for chunk in chunks]
     return chunks_in_docs
+
+def convert_chunk_obj_into_lists(chunks_obj):
+    # After chunking we have langchain chunks document objects but chroma expects these as list
+    # langchain splitter objects example: 
+    # >>> text_chunks[:2]
+    # [
+    #    Document(metadata={}, page_content='# TechVision Electronics'), 
+    #    Document(metadata={}, page_content='## About Us')
+    # ]
+    documents = [doc.page_content for doc in chunks_obj]
+    metadatas = [doc.metadata for doc in chunks_obj]
+    return documents, metadatas
 
 
 def download_hf_model(model_name: str = "all-MiniLM-L6-v2"):
