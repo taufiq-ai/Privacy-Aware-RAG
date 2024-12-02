@@ -1778,6 +1778,7 @@ dependencies = [
     { name = "anthropic" },
     { name = "chromadb" },
     { name = "google-generativeai" },
+    { name = "huggingface-hub" },
     { name = "langchain" },
     { name = "langchain-community" },
     { name = "langchain-huggingface" },
@@ -1791,6 +1792,8 @@ dependencies = [
     { name = "sentence-transformers" },
     { name = "sentencepiece" },
     { name = "structlog" },
+    { name = "torch" },
+    { name = "transformers" },
     { name = "ulid-py" },
     { name = "voyageai" },
 ]
@@ -1800,6 +1803,7 @@ requires-dist = [
     { name = "anthropic", specifier = ">=0.40.0" },
     { name = "chromadb", specifier = ">=0.5.20" },
     { name = "google-generativeai", specifier = ">=0.8.3" },
+    { name = "huggingface-hub", specifier = ">=0.26.3" },
     { name = "langchain", specifier = ">=0.3.9" },
     { name = "langchain-community", specifier = ">=0.3.8" },
     { name = "langchain-huggingface", specifier = ">=0.1.2" },
@@ -1813,6 +1817,8 @@ requires-dist = [
     { name = "sentence-transformers", specifier = ">=3.3.1" },
     { name = "sentencepiece", specifier = ">=0.2.0" },
     { name = "structlog", specifier = ">=24.4.0" },
+    { name = "torch", specifier = ">=2.5.1" },
+    { name = "transformers", specifier = ">=4.46.3" },
     { name = "ulid-py", specifier = ">=1.1.0" },
     { name = "voyageai", specifier = ">=0.3.1" },
 ]
