@@ -3,12 +3,12 @@ import structlog
 from typing import Literal
 
 from data.data import company_details
-from utils.langchain import (
+from services.langchain import (
     xl_to_chunks,
     text_to_chunks,
     convert_chunk_obj_into_lists,
 )
-from utils.chroma import (
+from services.chroma import (
     create_embedding_function_hf,
     get_or_create_collection,
     update_collection,
@@ -16,7 +16,7 @@ from utils.chroma import (
     retrieve_knowledge,
     get_collection,
 )
-from app.llm_interface import (
+from llms.llm_engine import (
     answer_from_context,
 )
 
@@ -70,7 +70,7 @@ def _get_documents_and_metadata_for_update(data, data_type:Literal["text", "xlsx
     return documents, metadatas
 
 
-def main(collection_name, ef_model_name="BAAI/bge-m3"):
+def run_rag(collection_name, ef_model_name="BAAI/bge-m3"):
     """Main function to run the QA system."""
     logger.info(
         "Initializing RAG",
@@ -109,5 +109,5 @@ def main(collection_name, ef_model_name="BAAI/bge-m3"):
         return
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    run_rag()

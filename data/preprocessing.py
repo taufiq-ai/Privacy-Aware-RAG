@@ -1,9 +1,11 @@
 import json
 import pandas as pd
+import structlog
 from datetime import datetime, timedelta
 
-def create_data(dump_dir="data"):
-    # Generate 50 products with more details
+logger = structlog.get_logger("__name__")
+
+def create_demo_data(dump_dir="data"):
     categories = ["Gaming Peripherals", "Monitors", "Laptops", "Components", "Storage", "Audio", "Networking"]
     brands = ["Razer", "Logitech", "Corsair", "ASUS", "Dell", "Samsung", "HyperX", "MSI"]
 
@@ -48,6 +50,7 @@ def create_data(dump_dir="data"):
     with open(f'{dump_dir}/ecommerce_data.json', 'w') as f:
         json.dump(ecommerce_data, f, indent=4)
 
+
 def save_into_excel(data, dump_dir="data") -> None: 
     df = pd.DataFrame(data)
     # Convert specifications from dict to string for Excel compatibility
@@ -60,3 +63,8 @@ def read_file_content(path):
 # Read JSON file
     with open('ecommerce_data.json', 'r') as f:
         return json.load(f)
+    
+if __name__=="__main__":
+    logger.info("creating synthetic data")
+    # create_demo_data()
+    
