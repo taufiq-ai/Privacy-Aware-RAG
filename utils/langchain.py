@@ -1,5 +1,4 @@
 import structlog
-import os
 import pandas as pd
 import settings
 
@@ -17,11 +16,13 @@ from transformers import AutoModel
 from langchain_huggingface import HuggingFaceEmbeddings
 
 ## Vector DB
-from langchain.vectorstores import Chroma
+# from langchain.vectorstores import Chroma ## FIXME
+from langchain_community.vectorstores import Chroma
 
 # Retriever
-from langchain_openai import ChatOpenAI
-from langchain.llms.openai import OpenAI
+from langchain_openai import ChatOpenAI 
+# from langchain.llms.openai import OpenAI # FIXME
+from langchain_community.llms import OpenAI
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain.retrievers import SelfQueryRetriever
 from langchain.retrievers import ContextualCompressionRetriever
@@ -47,15 +48,27 @@ def create_splitter(
 
 
 def xl_to_chunks(filepath: str):
-    # load df
     df = pd.read_excel(filepath)
-    loader = DataFrameLoader(df)
-    # consider all cols
-    docs = [Document(page_content=row.to_string()) for _, row in df.iterrows()]
-    # chunking
-    splitter = create_splitter(RecursiveCharacterTextSplitter)
-    chunks_in_docs = splitter.split_documents(docs)
-    return chunks_in_docs
+    logger.info("[STARTED] Excel to chunks", filepath=filepath, number_of_records=len(df))
+    
+    documents = []
+    for idx, row in df.iterrows():
+        product_id = row.get('product_code', f'product_{idx}')
+        product_content = '; '.join(f"{col}: {value}" for col, value in row.items())
+        doc = Document(
+            page_content=product_content,
+            ## FIXME: parsing metadata should be dynamic
+            metadata={
+                'product_id': product_id,
+                'price': row.get('price'),
+                'in_stock': row.get('in_stock'),
+                'category': row.get('category'),
+                'sub_category': row.get('sub_category'),
+            }
+        )
+        documents.append(doc)
+    logger.info("[DONE] Excel Chuning", total_chunks=len(documents))
+    return documents
 
 
 def text_to_chunks(text):
@@ -63,6 +76,20 @@ def text_to_chunks(text):
     chunks = splitter.split_text(text)
     chunks_in_docs = [Document(page_content=chunk) for chunk in chunks]
     return chunks_in_docs
+
+def convert_chunk_obj_into_lists(chunks_obj):
+    # After chunking we have langchain chunks document objects but chroma expects these as list
+    # langchain splitter objects example: 
+    # >>> text_chunks[:2]
+    # [
+    #    Document(metadata={}, page_content='# TechVision Electronics'), 
+    #    Document(metadata={}, page_content='## About Us')
+    # ]
+    logger.info("Converting Chunk Obj into List")
+    documents = [doc.page_content for doc in chunks_obj]
+    metadatas = [doc.metadata for doc in chunks_obj]
+    logger.info("[DONE] Convertion", documents=documents[:1], total_documents=len(documents), metadatas=metadatas[:1], total_metadata=len(metadatas))
+    return documents, metadatas
 
 
 def download_hf_model(model_name: str = "all-MiniLM-L6-v2"):
