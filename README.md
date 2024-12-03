@@ -33,7 +33,10 @@ Now even if we have 10 Asus products, the RAG return k=3, so the LLM think we on
 ```
 ### Bigger Challenges
 ```
-5. Building the full RAG LLMs pipeline for a single data file is a challege but adapting non-tech User in the end-to-end process is bigger challenge. 
+6. Building the full RAG LLMs pipeline for a single data file is a challege but adapting non-tech User in the end-to-end process is bigger challenge. 
 
-6. VectorDB Collection timed out to early
+7. VectorDB Collection timed out to early
 ```
+
+## Update
+1. NER can help to get query keys and value;

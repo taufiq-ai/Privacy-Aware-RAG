@@ -18,6 +18,7 @@ from services.chroma import (
 )
 from llms.llm_engine import (
     answer_from_context,
+    named_entity_recognition,
 )
 
 logger = structlog.get_logger(__name__)
