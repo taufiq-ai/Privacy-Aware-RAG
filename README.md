@@ -1,6 +1,16 @@
 # RAG for E-Commerce APP
 Accepts: markdown, texts, JSON, Excel files
 
+# Installation
+```
+git clone https://github.com/taufiq-ai/rag.git
+cd rag
+pipx install uv # NOTE: pipx should be installed `sudo apt install pipx`
+uv sync
+cp .env.example .env
+uv run main.py
+```
+
 ## WorkFlow:
 1. Fetch Data such as text, md, excel.
 2. Chunking data.
