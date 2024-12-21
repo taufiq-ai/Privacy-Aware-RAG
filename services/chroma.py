@@ -2,6 +2,7 @@
 # embedding support: ["OpenAI", "Google Gemini", "Cohere", "Hugging Face", "Instructor", "Hugging Face Embedding Server", "Jina AI", "Roboflow", "Ollama Embeddings"]
 # framework support: ["Langchain", "LlamaIndex", "Braintrust", "OpenLLMetry", "Streamlit", "Haystack", "OpenLIT"]
 # hf supported embedding models: https://huggingface.co/models
+# DB Filter Query: https://cookbook.chromadb.dev/core/filters/
 
 import settings
 from typing import Literal
