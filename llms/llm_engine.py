@@ -46,7 +46,7 @@ def answer_from_context(query:str, context: str|list, llm_be=llm_be, model=model
     return content
 
 
-def named_entity_recognition(text, fileds="", response_format="json_object", llm_be=llm_be, model=model):
+def recognize_named_entity(text, fileds="", response_format="json_object", llm_be=llm_be, model=model):
     # fileds = ['product_code:int', 'product_name:str', 'brand:str', 'price:int', 'discount_percent:int', 'discounted_price:int', 'in_stock:bool', 'stock_quantity:int', 'category:str', 'sub_category:str', 'description:str', 'ratings:float', 'reviews_count:int', 'warranty_months:int', 'added_date:date', 'tags:list']
     fileds = ['product_code:int', 'price:int', 'in_stock:bool', 'category:str', 'sub_category:str']
     prompt = template.ner.format(
@@ -71,7 +71,7 @@ def named_entity_recognition(text, fileds="", response_format="json_object", llm
     return content
     
 
-def text_classification(
+def classify_text(
     text:str, 
     classes:str|list = "", 
     llm_be=llm_be, 
@@ -90,4 +90,14 @@ def text_classification(
         response_format=response_format,
     )
     return content
+
+def optimize_filter_query(
+    fileds:list = [],
+    text:str = "",
+    databases = "",
+    ner:dict = {},
+    class_: dict = {},
+):
+    
+    return
     
