@@ -9,23 +9,16 @@ from datetime import datetime
 from importlib import import_module
 from llms import prompts as template
 
-# from llms import (
-#     google_ai as llm_be_google,
-#     google_ai as llm_be,
-#     prompts as template,
-#     openai as llm_be_openai,
-#     anthropic as llm_be_anthropic,
-#     pplx as llm_be_pplx,
-#     voyage as llm_be_voyage,
-    
-#     # openai as llm_be,
-#     # anthropic as llm_be,
-#     voyage as embedding_be,
-# )
-
 logger = structlog.get_logger(__name__)
 llm_be = import_module(settings.LLM_BACKEND)
 model = llm_be.MODEL_SM
+FIELDS = [
+    'product_code:int', 
+    'price:int', 
+    'in_stock:bool', 
+    'category:str', 
+    'sub_category:str'
+]
 
 def answer_from_context(query:str, context: str|list, llm_be=llm_be, model=model):
     prompt = template.q_and_a.format(
@@ -42,13 +35,11 @@ def answer_from_context(query:str, context: str|list, llm_be=llm_be, model=model
         prompt=prompt,
         model=model,
     )
-    
     return content
 
 
-def recognize_named_entity(text, fileds="", response_format="json_object", llm_be=llm_be, model=model):
+def recognize_named_entity(text, fileds=FIELDS, response_format="json_object", llm_be=llm_be, model=model):
     # fileds = ['product_code:int', 'product_name:str', 'brand:str', 'price:int', 'discount_percent:int', 'discounted_price:int', 'in_stock:bool', 'stock_quantity:int', 'category:str', 'sub_category:str', 'description:str', 'ratings:float', 'reviews_count:int', 'warranty_months:int', 'added_date:date', 'tags:list']
-    fileds = ['product_code:int', 'price:int', 'in_stock:bool', 'category:str', 'sub_category:str']
     prompt = template.ner.format(
         fileds=fileds,
         text=text,
@@ -83,7 +74,7 @@ def classify_text(
         classes=template.classification_classes,
         example_output=template.classification_output,
     )
-    logger.info("[LLM] Classifying Query",text=text,model=model)
+    logger.info("[LLM] Classifying Query", text=text, model=model)
     completion, content = llm_be.api_complete(
         prompt=prompt,
         model=model,
@@ -92,12 +83,24 @@ def classify_text(
     return content
 
 def optimize_filter_query(
-    fileds:list = [],
-    text:str = "",
-    databases = "",
-    ner:dict = {},
-    class_: dict = {},
+    text:str,
+    ner,
+    fileds:list = FIELDS,
+    llm_be=llm_be,
+    model=model,
 ):
-    
-    return
-    
+    # TODO: Should provide rules of operator and formatting usage
+    prompt = template.db_filter.format(
+        text=text,
+        fields=fileds,
+        ner_result=ner,
+        example_format=template.db_filter_example_format,
+        example_output=template.db_filter_example_output,
+    )
+    logger.info("[LLM] Optimizing Filter Query", text=text, model=model)
+    completion, content = llm_be.api_complete(
+        prompt=prompt,
+        model=model,
+    )
+    logger.info("[LLM] Optimized Filter Query", content=content)
+    return content    
