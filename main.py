@@ -16,7 +16,7 @@ from services.chroma import (
     retrieve_knowledge,
     get_collection,
 )
-from api.llm_engine import (
+from llms.llm_engine import (
     answer_from_context,
     named_entity_recognition,
 )

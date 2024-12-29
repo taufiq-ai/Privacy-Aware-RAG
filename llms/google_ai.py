@@ -26,13 +26,14 @@ MODEL_EMBEDDING = GeminiModel.TEXT_EMBEDDING.value
 MODEL_QA = GeminiModel.AQA.value
 
 def api_complete(prompt, model=MODEL_SM, max_tokens=3000, temperature=0.8, top_p=1, stop=None, **kwargs):
-	model = genai.GenerativeModel(model)
-	response = model.generate_content(prompt)
+	generative_model = genai.GenerativeModel(model)
+	response = generative_model.generate_content(prompt)
 	logger.info(
 		"Completion done",
-		metric_name=f"googelai.chat_completion.{model}",
+		metric_name=f"googleai.chat_completion.{generative_model}",
 		num_request=1,
-		model=model,
+		model=generative_model,
+		# response=response,
 	)
 	return response, response.text
 
