@@ -16,7 +16,7 @@ from services.chroma import (
     retrieve_knowledge,
     get_collection,
 )
-from llms.llm_engine import (
+from api.llm_engine import (
     answer_from_context,
     named_entity_recognition,
 )
@@ -111,4 +111,5 @@ def run_rag(collection_name, ef_model_name="BAAI/bge-m3"):
 
 
 if __name__ == "__main__":
-    run_rag()
+    collection_name="products"
+    run_rag(collection_name=collection_name)
