@@ -35,17 +35,24 @@ client = chromadb.PersistentClient(
 #     database=DEFAULT_DATABASE,
 # )
 
-def get_collection(name:str, ef_model_name:str=None, ef=None):
-    logger.info("[Getting] Collection", collection_name=name, ef_model_name=ef_model_name, ef=ef)
-    if ef_model_name:
-        ef = create_embedding_function_hf(model_name=ef_model_name)
-    collection = client.get_collection(
-        name=name, 
-        embedding_function=ef
-    )
-    logger.info("[Fetched] Collection", collection=collection, collection_name=name, ef=ef, ef_model_name=ef_model_name)
-    return collection
-    
+def get_collection(collection_name:str, ef_model_name:str=None, ef=None):
+    logger.info("[Getting] Collection", collection_name=collection_name, ef_model_name=ef_model_name, ef=ef)
+    try:
+        if ef_model_name:
+            ef = create_embedding_function_hf(model_name=ef_model_name)
+        collection = client.get_collection(
+            name=collection_name, 
+            embedding_function=ef
+        )
+        logger.info("[Fetched] Collection", collection=collection, collection_name=collection_name, ef=ef, ef_model_name=ef_model_name)
+        return collection
+    except Exception as e:
+        logger.error("Can not fetch collection",
+            collection_name=collection_name,
+            ef_model=ef_model_name,
+        )
+        return
+
 def get_or_create_collection(
     name: str,
     metadata: dict = None,
@@ -78,34 +85,6 @@ def create_embedding_function_hf(
     )
     logger.info("[CREATED] Embedding Function", ef=huggingface_ef, model_name=model_name)
     return huggingface_ef
-
-
-def retrieve_knowledge(
-    collection,
-    query: str | list,
-    retrieve_embeddings=False,
-    k: int = 3,
-    include: list = [
-        IncludeEnum.distances,
-        IncludeEnum.documents,
-        IncludeEnum.metadatas,
-    ],
-):
-    if type(query) == str:
-        query = [query]
-    logger.info("[Retrieving] Knowledge", collection=collection, query=query, number_of_retrieval=k)
-    results = collection.query(
-        query_texts=query,  # Chroma will embed this for you
-        n_results=k,
-        include=(
-            include
-            if not retrieve_embeddings
-            else include.append(IncludeEnum.embeddings)
-        ),
-    )
-    retrieval = ["\n".join(doc) for doc in results["documents"]]
-    logger.info("[Retrieval] Done", collection=collection, query=query, retrieval=retrieval)
-    return results, retrieval
 
 
 def update_collection(collection, documents: list, **kwargs):
@@ -155,6 +134,61 @@ def update_collection_in_batches(collection_name:str, documents: list, ef=None, 
 def delete_collection():
     return
 
+def retrieve_knowledge(
+    collection,
+    query: str | list,
+    retrieve_embeddings=False,
+    k: int = 3,
+    include: list = [
+        IncludeEnum.distances,
+        IncludeEnum.documents,
+        IncludeEnum.metadatas,
+    ],
+):
+    if type(query) == str:
+        query = [query]
+    logger.info("[Retrieving] Knowledge by Distance", collection=collection, query=query, number_of_retrieval=k)
+    results = collection.query(
+        query_texts=query,  # Chroma will embed this for you
+        n_results=k,
+        include=(
+            include
+            if not retrieve_embeddings
+            else include.append(IncludeEnum.embeddings)
+        ),
+    )
+    retrieval = ["\n".join(doc) for doc in results["documents"]]
+    logger.info("[Retrieval] Done", collection=collection, query=query, retrieval=retrieval)
+    return results, retrieval
+
+def retrieve_knowledge_by_filter(
+    collection,
+    query: str | list,
+    where: dict,
+    retrieve_embeddings=False,
+    k: int = 3,
+    include: list = [
+        IncludeEnum.distances,
+        IncludeEnum.documents,
+        IncludeEnum.metadatas,
+    ],
+):
+    if type(query) == str:
+        query = [query]
+    logger.info("[Retrieving] Knowledge by Filter", collection=collection, query=query, where=where, number_of_retrieval=k)
+    results = collection.query(
+        query_texts=query,  # Chroma will embed this for you
+        n_results=k,
+        where=where,
+        include=(
+            include
+            if not retrieve_embeddings
+            else include.append(IncludeEnum.embeddings)
+        ),
+    )
+    retrieval = ["\n".join(doc) for doc in results["documents"]]
+    logger.info("[Retrieval] Done", collection=collection, query=query, retrieval=retrieval)
+    return results, retrieval
 
 """
 embedding models tried so far:

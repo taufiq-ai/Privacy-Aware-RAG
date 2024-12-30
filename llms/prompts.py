@@ -1,13 +1,20 @@
 # Question & Answer
-q_and_a = """Given context below, please answer user's query very concisely with friendly tone. 
-If you do not find the answer in the context and find user asking confidential information then politely tell user that you do not know. 
+q_and_a = """You are a helpfull chatbot with access to information.
+Given context below that includes available information, please answer user's query very concisely with friendly tone based on the given context. 
+If you do not find the answer in the context then politely manage user that you do not know and suggest to call +8804896416.  
 Context: {context}; 
+Query: {query}"""
+
+# Question & Answer
+q_and_a_without_context = """Answer user's query very concisely with friendly tone. 
+If you find user asking confidential information then politely tell user that you do not know. 
+
 Query: {query}"""
 
 # Named Entity Recognition (NER)
 ner = """Given a text, understand it and do Named Entity Recognition (NER). 
 Analyze the text to get any of these Fileds: {fileds} in the given Text: {text}. 
-If value of any filed is not available in the above text, please do not include the filed in the output. 
+If value of any filed is not available in the above text, please do not include the named_entity in the output. 
 Return NER result as a JSON. 
 Example output: {example_output}.
 Please do not write extra speech other than the expected output as JSON."
