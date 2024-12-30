@@ -30,7 +30,6 @@ def api_complete(prompt, model=MODEL_SM, max_tokens=3000, temperature=0.8, top_p
 	response = generative_model.generate_content(prompt)
 	logger.info(
 		"Completion done",
-		metric_name=f"googleai.chat_completion.{generative_model}",
 		num_request=1,
 		model=generative_model,
 		# response=response,
