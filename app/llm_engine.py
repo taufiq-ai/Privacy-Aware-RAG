@@ -43,7 +43,7 @@ def request_llm(prompt, max_tokens=500, llm_be=llm_be, model=model, job=None, re
     return completion, output
 
 
-def answer_from_context(query:str, context: str|list, llm_be=llm_be, model=model):
+def answer_from_context(query:str, context: str|list):
     prompt = template.q_and_a.format(
         context=context,
         query=query,
@@ -55,7 +55,7 @@ def answer_from_context(query:str, context: str|list, llm_be=llm_be, model=model
     )
     return content
 
-def answer_without_context(query:str, llm_be=llm_be, model=model):
+def answer_without_context(query:str):
     prompt = template.q_and_a_without_context.format(query=query)
     completion, content = request_llm(
         prompt=prompt,
@@ -63,6 +63,15 @@ def answer_without_context(query:str, llm_be=llm_be, model=model):
         logs={"query": query},
     )
     return content
+
+# def answer_moderated_query(query:str):
+#     prompt = template.q_and_a_admin_query.format(query=query)
+#     completion, content = request_llm(
+#         prompt=prompt,
+#         model=model,
+#         logs={"query": query},
+#     )
+#     return content
 
 
 def extract_ner(text:str, fileds:list=FIELDS, response_format="json_object"):

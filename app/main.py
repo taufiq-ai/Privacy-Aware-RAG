@@ -18,8 +18,8 @@ from services.chroma import (
 )
 from app.llm_engine import (
     answer_from_context,
-    named_entity_recognition,
 )
+from app.rag import pipe_generation
 
 logger = structlog.get_logger(__name__)
 
@@ -38,7 +38,7 @@ def populate_collection(
         data_type=data_type,
     )
     ef = create_embedding_function_hf(model_name=ef_model)
-    collection = get_or_create_collection(name=collection_name, embedding_function=ef)
+    collection = get_or_create_collection(collection_name=collection_name, embedding_function=ef)
 
     documents, metadatas = _get_documents_and_metadata_for_update(data=data, data_type=data_type)
     
@@ -80,13 +80,14 @@ def run_rag(collection_name, ef_model_name="BAAI/bge-m3"):
     )
     try:
         try:
-            collection = get_collection(name=collection_name, ef_model_name=ef_model_name)
+            collection = get_collection(collection_name=collection_name, ef_model_name=ef_model_name)
             time.sleep(0.5)
         except Exception as exc:
             logger.error(
                 "Can not fetch collection",
                 collection_name=collection_name,
                 ef_model=ef_model_name,
+                exc=str(exc),
             )
             return
         
@@ -95,10 +96,11 @@ def run_rag(collection_name, ef_model_name="BAAI/bge-m3"):
                 query = input("Question: ").strip()
                 if not query:
                     continue
-                result, retrieval = retrieve_knowledge(
-                    collection=collection, query=query
-                )
-                answer = answer_from_context(query=query, context=retrieval)
+                # result, retrieval = retrieve_knowledge(
+                #     collection=collection, query=query
+                # )
+                # answer = answer_from_context(query=query, context=retrieval)
+                answer = pipe_generation(query, collection)
                 print(f"\nAnswer: {answer}\n")
             except KeyboardInterrupt:
                 print("\nExiting the chat...")

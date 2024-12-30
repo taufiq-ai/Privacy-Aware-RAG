@@ -1,3 +1,5 @@
+import structlog
+
 from app.llm_engine import (
     classify_text,
     extract_ner,
@@ -11,6 +13,7 @@ from services.chroma import (
     retrieve_knowledge_by_filter,
 )
 
+logger = structlog.get_logger(__name__)
 FIELDS = [
     'product_code:int', 
     'price:int', 
@@ -19,28 +22,37 @@ FIELDS = [
     'sub_category:str'
 ]
 
-def augment_generation(
-    text:str,
-    context = None
-):  
-    # context = retrieve_context(text=text, collection=collection)
-    if context:
-        generation = answer_from_context(context=context, query=text)
-    else:
-        generation = answer_without_context(query=text)
-        
-    return generation
+def pipe_generation(text:str, collection):
+    class_payload = get_query_class(text=text)
+    call_rag = class_payload.get("call_rag")
+    query_class = class_payload.get("query_class")
+    if not call_rag:
+        if query_class == "CHITCHAT":
+            return answer_without_context(query=text)
+        else:
+            return "I am sorry, I am not able to help you with this. Please contact customer support."
+    
+    payload = understand_user_query(text=text)
+    context = retrieve_context(text=text, collection=collection, payload=payload)
+    return answer_from_context(context=context, query=text)
+
 
 def retrieve_context(
     text: str|list,
     collection,
     k=3,
-    call_rag=False, 
     payload={}
 ): 
-    if not call_rag:
-        return None
-    if not payload.get("result"):
+    optimized_filter_query = payload.get("result")
+    logger.info(
+        "Retrieving Context",
+        text=text,
+        collection=collection,
+        k=k,
+        optimized_filter_query=optimized_filter_query,
+    )
+    
+    if not optimized_filter_query:
         results, retrieval = retrieve_knowledge(
             collection=collection,
             query=text,
@@ -50,7 +62,7 @@ def retrieve_context(
     results, retrieval = retrieve_knowledge_by_filter(
         collection=collection,
         query=text,
-        where=payload["result"],
+        where=optimized_filter_query,
         k=k,
     )
     return retrieval
@@ -60,34 +72,40 @@ def understand_user_query(
     classes = ["CHITCHAT", "PRESALES_ENQUIRY", "CUSTOMER_SUPPORT", "ACCOUNT_ACTION", "FLAGGED_CONTENT"],
     prohibited_classes: list = ["CHITCHAT","ACCOUNT_ACTION", "FLAGGED_CONTENT"],
     ):
-    call_rag = True
     payload = {
-        "call_rag": call_rag,
-        "classification_result": {},
         "ner_result": {},
         "filter_logic": {},
         "result": {},
     }
-    
-    # Classify the text
-    classification_result = classify_text(text)
-    payload["classification_result"] = classification_result
-    if classification_result.get("class") in prohibited_classes:
-        payload["call_rag"] = False
-        return False, payload
-    
-    # Extract Named Entity Recognition (NER)
     ner_result = extract_ner(text=text, fileds=FIELDS)
     payload["ner_result"] = ner_result
     if not ner_result:
-        return call_rag, payload
+        return payload
     
     filter_logic = optimize_filter_query(text=text, ner=ner_result, fileds=FIELDS)
     payload["filter_logic"] = filter_logic
     payload["result"] = filter_logic
     
-    return call_rag, payload
+    return payload
 
+def get_query_class(
+    text,
+    call_rag=True,
+    classes = ["CHITCHAT", "PRESALES_ENQUIRY", "CUSTOMER_SUPPORT", "ACCOUNT_ACTION", "FLAGGED_CONTENT"],
+    prohibited_classes: list = ["CHITCHAT","ACCOUNT_ACTION", "FLAGGED_CONTENT"],
+):
+    payload= {
+        "call_rag": call_rag,
+        "query_class": "",
+        "classification_result": {},
+    }
+    classification_result = classify_text(text)
+    query_class = classification_result.get("class")
+    if query_class in prohibited_classes:
+        payload["call_rag"] = False
+    payload["query_class"] = query_class
+    payload["classification_result"] = classification_result
+    return payload
 
 """
 Process Flow:
