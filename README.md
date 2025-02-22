@@ -3,8 +3,8 @@ Accepts: markdown, texts, JSON, Excel files
 
 # Installation
 ```
-git clone https://github.com/taufiq-ai/rag.git
-cd rag
+git clone <repo link>
+cd <repo name>
 pipx install uv # NOTE: pipx should be installed `sudo apt install pipx`
 uv sync
 cp .env.example .env
