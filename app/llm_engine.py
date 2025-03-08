@@ -64,14 +64,6 @@ def answer_without_context(query:str):
     )
     return content
 
-# def answer_moderated_query(query:str):
-#     prompt = template.q_and_a_admin_query.format(query=query)
-#     completion, content = request_llm(
-#         prompt=prompt,
-#         model=model,
-#         logs={"query": query},
-#     )
-#     return content
 
 
 def extract_ner(text:str, fileds:list=FIELDS, response_format="json_object"):
@@ -96,7 +88,7 @@ def classify_text(
 ):
     prompt = template.classification.format(
         text=text,
-        classes=template.classification_classes,
+        classes=classes,
         example_output=template.classification_output,
     )
     completion, content = request_llm(

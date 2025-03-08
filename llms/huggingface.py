@@ -10,7 +10,7 @@ logger = structlog.get_logger(__name__)
 
 def get_pretrained_model_and_tokenizer(
     model_name: str = "mistralai/Mistral-7B-Instruct-v0.2",
-    device: str = "auto"
+    device: str = "cpu"
 ) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     device = "cuda" if device == "auto" and torch.cuda.is_available() else "cpu"
     device_map = {"": 0} if device == "cuda" else None
