@@ -42,6 +42,19 @@ Class label | Class Name | Details
 
 classification_output = '{"class":"CUSTOMER_SUPPORT", "label":2, "confidence":[0.01, 0.23, 0.74, 0.02, 0.00]}'
 
+shortlist_collections_user_content = """Given a user query category. Based on the given query_category and vector db collection details sort the vector db collections. Then return the sorted collections as a json obj.
+
+Query Category: {categories}
+
+Vector DB Collection Details: {collection_details}
+
+Understand the contex well then return sorted collections as json obj. In jaon add the list of sorted collections, and a list of confidence that reflect the probability of the collection match with query category. Where the confidence range is 0 to 1 and sum of confidence is 1.
+
+Follow the example format strictly: {example_output}
+
+"""
+shortlist_collections_example_output = '{"collections":["sorted collection 1", "sorted collection 2"], "confidence":[0.8, 0.2]}'
+
 # DB Query Optimization
 db_query_optimization = """Task: DB Query Filter Operation Optimization.
 User Input: 

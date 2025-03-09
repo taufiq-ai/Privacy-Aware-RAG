@@ -99,6 +99,24 @@ def classify_text(
     )
     return content
 
+def shortlist_vector_collections(
+    query_category:dict,
+    collections_description: dict,
+    response_format="json_object",
+) -> list:
+    prompt = template.shortlist_collections_user_content.format(
+        categories=query_category,
+        collection_details=collections_description,
+        example_output=template.shortlist_collections_example_output,
+    )
+    completion, content = request_llm(
+        prompt=prompt,
+        model=model,
+        response_format=response_format,
+        logs={"query_category": query_category, "collections_description": collections_description},
+    )
+    return content
+
 def optimize_filter_query(
     text:str,
     ner:dict,
