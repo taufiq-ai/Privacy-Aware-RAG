@@ -17,9 +17,8 @@ In this project, I'll demonstrate the following LLM-based techniques using an op
 
 # Installation
 ```
-git clone <repo link>
-cd <repo name>
-pipx install uv # NOTE: pipx should be installed `sudo apt install pipx`
+git clone https://github.com/taufiq-ai/Privacy-Aware-RAG.git
+cd Privacy-Aware-RAG
 uv sync
 cp .env.example .env
 uv run main.py
